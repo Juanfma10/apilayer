@@ -1,0 +1,55 @@
+version: '3.6'
+
+services:
+
+  srvproxy:
+    image: nginx
+    container_name: srvproxy
+    hostname: srvproxy
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - srvwildfly
+    networks:
+      - demo_kcs_net
+
+  srvdb:
+    image: postgres
+    container_name: srvdb
+    hostname: srvdb
+    environment:
+      POSTGRES_USER: consultas
+      POSTGRES_DB: consultas
+      POSTGRES_PASSWORD: QueryConSql.pwd
+    ports:
+      - 5432:5432
+    networks:
+      - demo_kcs_net
+
+  srvwildfly:
+    image: myapp
+    container_name: srvwildfly
+    hostname: srvwildfly
+    ports:
+      - 8080:8080
+    depends_on:
+      - srvdb
+    networks:
+      - demo_kcs_net
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: info@jtux.ec
+      PGADMIN_DEFAULT_PASSWORD: clave
+    ports:
+      - 5050:80
+    depends_on:
+      - srvdb
+    networks:
+      - demo_kcs_net
+
+networks:
+  demo_kcs_net:
